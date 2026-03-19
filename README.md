@@ -1,15 +1,15 @@
 # LangChain Semantic Search + PGVector
 
-CLI Python para ingestao de PDF, busca semantica e chat com contexto vetorial no PostgreSQL + `pgvector`.
+Python CLI for PDF ingestion, semantic search, and chat with vector context on PostgreSQL + `pgvector`.
 
-## O que este projeto faz
+## What this project does
 
-- ingere PDF no banco vetorial;
-- executa busca semantica (`search`);
-- responde perguntas com contexto recuperado (`chat`);
-- suporta provedores `openai` e `gemini` com `-m`.
+- ingests PDF into the vector database;
+- runs semantic search (`search`);
+- answers questions with retrieved context (`chat`);
+- supports `openai` and `gemini` providers via `-m`.
 
-## Estrutura
+## Structure
 
 ```text
 .
@@ -30,14 +30,14 @@ CLI Python para ingestao de PDF, busca semantica e chat com contexto vetorial no
 
 ## Quickstart (local)
 
-1) Suba o banco:
+1) Start the database:
 
 ```bash
 docker context use default
 docker compose up -d
 ```
 
-2) Instale dependencias:
+2) Install dependencies:
 
 ```bash
 python -m venv .venv
@@ -45,42 +45,42 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-3) Configure ambiente:
+3) Configure environment:
 
 ```bash
 cp .env.example .env
 python src/cli.py config
 ```
 
-4) Ingestao (uma vez por documento):
+4) Ingest (once per document):
 
 ```bash
 python src/ingest.py --file document.pdf -m openai
 ```
 
-5) Consulta e chat:
+5) Search and chat:
 
 ```bash
-python src/search.py "resuma o documento" --k 10 -m openai
-python src/chat.py --message "quais os pontos principais?" -m openai
+python src/search.py "summarize the document" --k 10 -m openai
+python src/chat.py --message "what are the main points?" -m openai
 ```
 
-## Uso direto dos scripts (recomendado)
+## Direct script usage (recommended)
 
-Os scripts `ingest.py`, `search.py` e `chat.py` podem ser executados diretamente, sem passar pelo CLI.
+The scripts `ingest.py`, `search.py`, and `chat.py` can be run directly without going through the CLI.
 
 ### ingest.py
 
-Ingere PDF no banco vetorial.
+Ingests PDF into the vector database.
 
 ```bash
-python src/ingest.py [--file ARQUIVO] [-m openai|gemini]
+python src/ingest.py [--file FILE] [-m openai|gemini]
 ```
 
-| Argumento | Descricao | Padrao |
-|-----------|-----------|--------|
-| `--file` | Caminho do PDF | `document.pdf` |
-| `-m` | Provedor de embeddings | config padrao |
+| Argument | Description | Default |
+|----------|-------------|---------|
+| `--file` | Path to PDF | `document.pdf` |
+| `-m` | Embedding provider | config default |
 
 ```bash
 python src/ingest.py --file document.pdf -m openai
@@ -89,113 +89,113 @@ python src/ingest.py -m gemini
 
 ### search.py
 
-Busca semantica no pgvector.
+Semantic search in pgvector.
 
 ```bash
 python src/search.py QUERY [--k N] [-m openai|gemini]
 ```
 
-| Argumento | Descricao | Padrao |
-|-----------|-----------|--------|
-| `QUERY` | Texto da consulta (obrigatorio) | - |
-| `--k` | Numero de resultados | 3 |
-| `-m` | Provedor de embeddings | config padrao |
+| Argument | Description | Default |
+|----------|-------------|---------|
+| `QUERY` | Search text (required) | - |
+| `--k` | Number of results | 3 |
+| `-m` | Embedding provider | config default |
 
 ```bash
-python src/search.py "resuma o documento" -m openai
-python src/search.py "pontos principais" --k 10 -m gemini
+python src/search.py "summarize the document" -m openai
+python src/search.py "main points" --k 10 -m gemini
 ```
 
 ### chat.py
 
-Chat com contexto recuperado do banco vetorial.
+Chat with context retrieved from the vector database.
 
 ```bash
-python src/chat.py [--message PERGUNTA] [--k N] [-m openai|gemini]
+python src/chat.py [--message QUESTION] [--k N] [-m openai|gemini]
 ```
 
-| Argumento | Descricao | Padrao |
-|-----------|-----------|--------|
-| `--message` | Pergunta unica (se omitido, inicia chat interativo) | - |
-| `--k` | Top K resultados do contexto | 3 |
-| `-m` | Provedor do LLM | config padrao |
+| Argument | Description | Default |
+|----------|-------------|---------|
+| `--message` | Single question (if omitted, starts interactive chat) | - |
+| `--k` | Top K results for context | 3 |
+| `-m` | LLM provider | config default |
 
 ```bash
-# Mensagem unica
-python src/chat.py --message "quais os pontos principais?" -m openai
+# Single message
+python src/chat.py --message "what are the main points?" -m openai
 
-# Chat interativo (digite 'sair' para encerrar)
+# Interactive chat (type 'exit' to quit)
 python src/chat.py -m openai
 
-python src/chat.py --message "resuma em 3 pontos" --k 10 -m gemini
+python src/chat.py --message "summarize in 3 points" --k 10 -m gemini
 ```
 
-## Uso via CLI
+## CLI usage
 
-Alternativamente, use o CLI unificado `cli.py` para todos os comandos:
+Alternatively, use the unified CLI `cli.py` for all commands:
 
 ```bash
 python src/cli.py -h
 ```
 
-Comandos disponiveis:
+Available commands:
 
-- `config`: salva configuracoes.
-- `ingest --file ... -m ...`: ingere PDF.
-- `list [-m ...] [--limit ...] [--offset ...] [--source-contains ...]`: lista documentos.
-- `search "query" --k ... -m ...`: busca semantica.
+- `config`: saves configuration.
+- `ingest --file ... -m ...`: ingests PDF.
+- `list [-m ...] [--limit ...] [--offset ...] [--source-contains ...]`: lists documents.
+- `search "query" --k ... -m ...`: semantic search.
 - `chat [--message ...] --k ... -m ...`: chat.
-- `delete --id ... -m ...` ou `delete --source ... -m ...`: exclui documentos.
+- `delete --id ... -m ...` or `delete --source ... -m ...`: deletes documents.
 
-### Exemplos do CLI
+### CLI examples
 
 ```bash
-# Configuracao
+# Configuration
 python src/cli.py config
 
-# Ingestao
+# Ingest
 python src/cli.py ingest --file document.pdf -m openai
 
-# Listagem para descobrir IDs
+# List to discover IDs
 python src/cli.py list -m openai
 python src/cli.py list -m openai --source-contains "document.pdf"
 
-# Busca
-python src/cli.py search "resuma o documento" --k 10 -m openai
+# Search
+python src/cli.py search "summarize the document" --k 10 -m openai
 
-# Chat interativo
+# Interactive chat
 python src/cli.py chat -m openai
 
-# Chat com mensagem unica
-python src/cli.py chat --message "resuma em 3 pontos" -m openai
+# Single message chat
+python src/cli.py chat --message "summarize in 3 points" -m openai
 
-# Exclusao por ID
+# Delete by ID
 python src/cli.py delete --id 1 -m openai
 
-# Exclusao por source (caminho original)
-python src/cli.py delete --source "/caminho/absoluto/document.pdf" -m openai
+# Delete by source (original path)
+python src/cli.py delete --source "/absolute/path/document.pdf" -m openai
 
-# Exclusao por source relativo (sera normalizado para caminho absoluto)
+# Delete by relative source (will be normalized to absolute path)
 python src/cli.py delete --source "document.pdf" -m openai
 ```
 
-### Atalhos globais do CLI
+### CLI global shortcuts
 
-- `-f/--file`: atalho para ingestao (nao executa chat)
-- `-c/--chat`: atalho para chat com mensagem unica
-- `-m/--model`: escolhe provedor (`openai` ou `gemini`)
+- `-f/--file`: shortcut for ingest (does not run chat)
+- `-c/--chat`: shortcut for single-message chat
+- `-m/--model`: selects provider (`openai` or `gemini`)
 
 ```bash
-# Ingestao
+# Ingest
 python src/cli.py -m openai -f document.pdf
 
 # Chat
-python src/cli.py -m gemini -c "resuma o documento"
+python src/cli.py -m gemini -c "summarize the document"
 ```
 
-## Docker context remoto (ex.: Linux Mint)
+## Remote Docker context (e.g. Linux Mint)
 
-Se o Docker estiver em contexto remoto, o banco nao estara no `localhost` do seu mac por padrao.
+If Docker is in a remote context, the database will not be on your Mac's `localhost` by default.
 
 ```bash
 docker context ls
@@ -203,33 +203,33 @@ docker context use casa
 docker compose up -d
 ```
 
-Se a app Python rodar localmente, crie tunel SSH:
+If the Python app runs locally, create an SSH tunnel:
 
 ```bash
 ssh -N -L 5432:127.0.0.1:5432 mintdocker
 ```
 
-Com tunel ativo, mantenha:
+With the tunnel active, keep:
 - `PG_HOST=localhost`
 - `PG_PORT=5432`
 
-## Sobre `-m` no delete
+## About `-m` in delete
 
-No `delete`, `-m` nao chama API de modelo. Ele apenas escolhe qual tabela vetorial sera afetada:
+In `delete`, `-m` does not call a model API. It only selects which vector table is affected:
 
-- `-m openai` -> tabela `documents_openai`
-- `-m gemini` -> tabela `documents_gemini`
+- `-m openai` -> table `documents_openai`
+- `-m gemini` -> table `documents_gemini`
 
-## Modelos padrao
+## Default models
 
 - OpenAI:
   - Embedding: `text-embedding-3-small`
   - LLM: `gpt-5-nano`
 - Gemini:
-  - Embedding: `models/embedding-001`
+  - Embedding: `gemini-embedding-001` (or `models/embedding-001` if using older config)
   - LLM: `gemini-2.5-flash-lite`
 
-## Credenciais padrao do banco (compose)
+## Default database credentials (compose)
 
 - `PG_HOST=localhost`
 - `PG_PORT=5432`
@@ -237,20 +237,20 @@ No `delete`, `-m` nao chama API de modelo. Ele apenas escolhe qual tabela vetori
 - `PG_USER=ghisi`
 - `PG_PASSWORD=ghisi`
 
-## Troubleshooting rapido
+## Quick troubleshooting
 
-- **`Connection refused` em `localhost:5432`**
-  - confira `docker context ls`;
-  - em contexto remoto, use tunel SSH ou rode a app na mesma maquina do banco.
+- **`Connection refused` on `localhost:5432`**
+  - check `docker context ls`;
+  - with remote context, use SSH tunnel or run the app on the same machine as the database.
 
 - **`database "ghisi_db" does not exist`**
-  - ajuste para `PG_DATABASE=ghisi_rag` no `.env` ou no `config`.
+  - set `PG_DATABASE=ghisi_rag` in `.env` or config.
 
 - **`vector type not found in the database`**
-  - confirme extensao:
+  - confirm extension:
     `docker compose exec pgvector psql -U ghisi -d ghisi_rag -c "\dx"`.
-  - deve aparecer `vector` na lista.
+  - `vector` should appear in the list.
 
-- **OpenAI 400 sobre `temperature` com `gpt-5-nano`**
-  - esse modelo nao aceita `temperature=0.1` nesse endpoint;
-  - use valor padrao (`1`) ou omita o parametro.
+- **OpenAI 400 on `temperature` with `gpt-5-nano`**
+  - this model does not accept `temperature=0.1` on this endpoint;
+  - use default value (`1`) or omit the parameter.
