@@ -1,0 +1,34 @@
+services:
+  pgvector:
+    image: pgvector/pgvector:pg17
+    container_name: ghisi-pgvector
+    environment:
+      POSTGRES_DB: ghisi_rag
+      POSTGRES_USER: ghisi
+      POSTGRES_PASSWORD: ghisi
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ghisi -d ghisi_rag"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  bootstrap_vector_ext:
+    image: pgvector/pgvector:pg17
+    depends_on:
+      pgvector:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        sleep 2
+        PGPASSWORD=ghisi psql -h pgvector -U ghisi -d ghisi_rag -v ON_ERROR_STOP=1 -c "CREATE EXTENSION IF NOT EXISTS vector;"
+    restart: "no"
+    container_name: ghisi-bootstrap-vector-ext
+volumes:
+  pgdata:
+
